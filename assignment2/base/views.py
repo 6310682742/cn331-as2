@@ -92,7 +92,7 @@ def room(request,pk):
     describetion = room.describetion
     func = ""
     students = ""
-    registable = (request.user.is_superuser or request.user == room.teacher) and not (room.course_status == True and room.max_student > len(room.student.all()))
+    registable = (request.user.is_superuser or request.user == room.teacher) 
     is_teacher = request.user == room.teacher
     # print(registable)
     if request.user.is_superuser:
@@ -129,7 +129,8 @@ def room(request,pk):
     return render(request, 'base/room.html',context)
 def userProfile(request,pk):
     user = User.objects.get(id=pk)
-    courses = user.course_set.all()
+    courses = Course.objects.filter(student=user.id)
+    # print(user.username)
     is_student = request.user.is_superuser
     context = {
         'courses':courses,
