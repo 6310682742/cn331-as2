@@ -1,5 +1,10 @@
 {% include 'header.html' %}
+{% if user == room.teacher %}
+            <label for=""><a href="{% url 'editCourse' room.id %}">edit</a></label>
+            <label for=""><a href="{% url 'deleteCourse' room.id %}">delete</a></label>
+        {% endif %}
 <h3>{{room.course_code}} -- {{room.course_name}}</h3>
+
 <p>{{describetion}}</p>
 {% if registable %}
 <form method="POST" action="">

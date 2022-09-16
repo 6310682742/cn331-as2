@@ -115,13 +115,15 @@ def room(request,pk):
                 room.student.remove(request.user)
             room.save()
             return redirect('home')
+    user = request.user
     context = {
         'room':room,
         'func':func,
         'describetion':describetion,
         'students':students,
         'registable':not registable,
-        'is_teacher':is_teacher
+        'is_teacher':is_teacher,
+        'user':user
     }
     return render(request, 'base/room.html',context)
 def userProfile(request):
