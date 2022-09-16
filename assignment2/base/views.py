@@ -9,7 +9,7 @@ def home(request):
     context = {}
     return render(request, 'base/home.html', context)
 def loginUser(request):
-    page = 'login'
+    
     if request.user.is_authenticated:
         return redirect('home')
     if request.method == 'POST':
@@ -25,7 +25,7 @@ def loginUser(request):
             return redirect('home')
         else:
             messages.error(request, 'User does not exist')
-    context = {'page': page}
+    context = {}
     return render(request,'base/login.html',context)
 def logoutUser(request):
     logout(request)
