@@ -22,4 +22,4 @@ class Course(models.Model):
     def __str__(self) -> str:
         return self.course_code
     def is_registable(self) -> bool:
-        return True if self.max_student > self.student.all() else False
+        return True if self.max_student > len(self.student.all()) else False

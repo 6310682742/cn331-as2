@@ -29,7 +29,8 @@ def home(request):
     elif q == "Available":
         courses = []
         for c in Course.objects.filter(course_status=True):
-            courses.append(c)
+            if(c.is_registable() and request.user not in c.student.all()):
+                courses.append(c)
     roomStatus = (
         "All",
         "Available",
