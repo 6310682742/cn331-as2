@@ -21,7 +21,7 @@
         <h1>{{q}} course</h1>
 
         {% for course in courses %}
-        <h2><a href="{% url 'room' course.id %}">{{course.id}} {{course.course_name}}</a></h2>
+        <h2><a href="{% url 'room' course.id %}">{{course.course_code}} {{course.course_name}}</a></h2>
 
         <hr>
         {% endfor %}

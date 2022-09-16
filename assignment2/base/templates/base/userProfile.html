@@ -1,0 +1,7 @@
+{% include 'header.html' %}
+<h3>Registered Course</h3>
+{% for course in courses%}
+<li><a href="{% url 'room' course.id %}">{{course.course_code}} {{course.course_name}}</a></li>
+
+
+{% endfor %}

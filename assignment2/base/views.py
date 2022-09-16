@@ -1,4 +1,5 @@
 from http.client import HTTPResponse
+from multiprocessing import context
 
 from xml.etree.ElementTree import QName
 from django.contrib.auth.models import User
@@ -101,3 +102,9 @@ def room(request,pk):
         'func':func
     }
     return render(request, 'base/room.html',context)
+def userProfile(request):
+    courses = Course.objects.filter(student=request.user)
+    context = {
+        'courses':courses
+    }
+    return render(request, 'base/userProfile.html', context)
