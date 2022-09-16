@@ -92,7 +92,7 @@ def room(request,pk):
     describetion = room.describetion
     func = ""
     students = ""
-    registable = request.user.is_superuser or request.user == room.teacher
+    registable = (request.user.is_superuser or request.user == room.teacher) and not (room.course_status == True and room.max_student > len(room.student.all()))
     is_teacher = request.user == room.teacher
     # print(registable)
     if request.user.is_superuser:
@@ -173,21 +173,23 @@ def editCourse(request, pk):
     if request.user != course.teacher:
         return HttpResponse("You are not allowed to delete this course")
     if request.method == 'POST':
-        course.course_code = request.POST.get('course_code')
-        course.course_name = request.POST.get('course_name')
-        course.course_semeter = request.POST.get('course_semeter')
-        course.course_year = request.POST.get('course_year')
-        course.teacher = request.user
-        course.max_student = request.POST.get('max_student')
-        course.course_status = request.POST.get('course_status')
-        course.describetion = request.POST.get('describetion')
+        if len(dict(request.POST)['student']) <= int(request.POST.get('max_student')):
+            course.course_code = request.POST.get('course_code')
+            course.course_name = request.POST.get('course_name')
+            course.course_semeter = request.POST.get('course_semeter')
+            course.course_year = request.POST.get('course_year')
+            course.teacher = request.user
+            course.max_student = request.POST.get('max_student')
+            course.course_status = request.POST.get('course_status')
+            course.describetion = request.POST.get('describetion')
         # course.student.set(request.POST)
-        course.student.clear()
+            course.student.clear()
         # print(dict(request.POST))
-        if('student' in dict(request.POST).keys()):
             for i in dict(request.POST)['student']:
                 course.student.add(i)
-        course.save()
+            course.save()
+        else:
+            return HttpResponse('Edit Error')
         return redirect('home')
     context = {
         'course':course,
