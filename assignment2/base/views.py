@@ -38,7 +38,6 @@ def home(request):
         "Registered",
         )
     user = request.user
-    # print(user.username)
     context = {
         'courses':courses,
         'roomStatus':roomStatus,
@@ -94,7 +93,6 @@ def room(request,pk):
     students = ""
     registable = (request.user.is_superuser or request.user == room.teacher) 
     is_teacher = request.user == room.teacher
-    # print(registable)
     if request.user.is_superuser:
         students = room.student.all()
     else:
@@ -105,7 +103,6 @@ def room(request,pk):
         
         if request.method == 'POST':
             if request.user not in room.student.all():
-                # print(room.max_student > len(room.student.all()))
                 if room.course_status == True and room.max_student > len(room.student.all()):
                     room.student.add(request.user)
                 else:
@@ -116,7 +113,6 @@ def room(request,pk):
             room.save()
             return redirect('home')
     user = request.user
-    print(students)
     context = {
         'room':room,
         'func':func,
@@ -130,7 +126,6 @@ def room(request,pk):
 def userProfile(request,pk):
     user = User.objects.get(id=pk)
     courses = Course.objects.filter(student=user.id)
-    # print(user.username)
     is_student = request.user.is_superuser
     context = {
         'courses':courses,
@@ -143,7 +138,6 @@ def createCourse(request):
     if(request.user.is_superuser):
         form = CourseForm()
         if request.method == 'POST':
-            # print(dict(request.POST)['student'])
             course = Course.objects.create(
             course_code = request.POST.get('course_code'),
             course_name = request.POST.get('course_name'),
@@ -185,7 +179,6 @@ def editCourse(request, pk):
             course.describetion = request.POST.get('describetion')
         # course.student.set(request.POST)
             course.student.clear()
-        # print(dict(request.POST))
             for i in dict(request.POST)['student']:
                 course.student.add(i)
             course.save()
