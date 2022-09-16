@@ -1,8 +1,17 @@
 {% include 'header.html' %}
 <h3>{{room.course_code}} -- {{room.course_name}}</h3>
 <p>{{describetion}}</p>
+{% if registable %}
 <form method="POST" action="">
     {% csrf_token %}
     
     <input type="submit" value="{{func}}" name="" id="">
 </form>
+{% else %}
+    {% if is_teacher %}
+    <h4>They are your students </h4>
+    {% for student in students %}
+        <li>{{student}}</li>
+    {% endfor %}
+    {% endif %}
+{% endif %}

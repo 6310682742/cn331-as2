@@ -1,7 +1,7 @@
 from pydoc import describe
+import re
 from django.http import HttpResponse
 from multiprocessing import context
-
 from xml.etree.ElementTree import QName
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -11,11 +11,11 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import Course
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
-
+from .forms import CourseForm
 # Create your views here.
 
 def home(request):
-    print(request.user)
+    is_admin = request.user.is_superuser
     q = request.GET.get('q') if request.GET.get('q') != None else 'All'
     
     if q == "All":
@@ -37,14 +37,16 @@ def home(request):
         "Closed",
         "Registered",
         )
-
+    user = request.user
+    # print(user.username)
     context = {
         'courses':courses,
         'roomStatus':roomStatus,
         'q':q,
+        'is_admin':is_admin,
+        'user':user,
 
     }
-    print(roomStatus)
     return render(request, 'base/home.html', context)
 def loginUser(request):
     
@@ -69,6 +71,8 @@ def logoutUser(request):
     logout(request)
     return redirect('home')
 def registUser(request):
+    if request.user.is_authenticated:
+        return redirect('home')
     form = UserCreationForm()
 
     if request.method == 'POST':
@@ -87,33 +91,114 @@ def room(request,pk):
     room = Course.objects.get(id=pk)
     describetion = room.describetion
     func = ""
-    print(room.student.all())
-    if(request.user in room.student.all()):
-        func = "unregist"
+    students = ""
+    registable = request.user.is_superuser or request.user == room.teacher
+    is_teacher = request.user == room.teacher
+    # print(registable)
+    if request.user.is_superuser:
+        students = room.student.all()
     else:
-        func = "regist"
-    
-    if request.method == 'POST':
-        if request.user not in room.student.all():
-            print(room.max_student > len(room.student.all()))
-            if room.course_status == True and room.max_student > len(room.student.all()):
-                room.student.add(request.user)
-            else:
-                return HttpResponse("You can not register this couse because this couse reach maximun students or it was closed.")
-                
+        if(request.user in room.student.all()):
+            func = "unregist"
         else:
-            room.student.remove(request.user)
-        room.save()
-        return redirect('home')
+            func = "regist"
+        
+        if request.method == 'POST':
+            if request.user not in room.student.all():
+                # print(room.max_student > len(room.student.all()))
+                if room.course_status == True and room.max_student > len(room.student.all()):
+                    room.student.add(request.user)
+                else:
+                    return HttpResponse("You can not register this couse because this couse reach maximun students or it was closed.")
+                    
+            else:
+                room.student.remove(request.user)
+            room.save()
+            return redirect('home')
     context = {
         'room':room,
         'func':func,
-        'describetion':describetion
+        'describetion':describetion,
+        'students':students,
+        'registable':not registable,
+        'is_teacher':is_teacher
     }
     return render(request, 'base/room.html',context)
 def userProfile(request):
-    courses = Course.objects.filter(student=request.user)
+    if request.user.is_superuser:
+        courses = Course.objects.filter(teacher=request.user)
+    else:
+        courses = Course.objects.filter(student=request.user)
+    is_student = request.user.is_superuser
     context = {
-        'courses':courses
+        'courses':courses,
+        'is_student':not is_student,
     }
     return render(request, 'base/userProfile.html', context)
+def createCourse(request):
+    if(request.user.is_superuser):
+        form = CourseForm()
+        if request.method == 'POST':
+            # print(dict(request.POST)['student'])
+            course = Course.objects.create(
+            course_code = request.POST.get('course_code'),
+            course_name = request.POST.get('course_name'),
+            course_semeter = request.POST.get('course_semeter'),
+            course_year = request.POST.get('course_year'),
+            teacher = request.user,
+            max_student = request.POST.get('max_student'),
+            course_status = request.POST.get('course_status'),
+            describetion = request.POST.get('describetion')
+            )
+            # course.student.set(request.POST)
+            for i in dict(request.POST)['student']:
+                course.student.add(i)
+            course.save()
+            
+            return redirect('home')
+
+            
+        context = {
+            'form':form,
+        }
+        return render(request, 'base/course_form.html',context)
+    else:
+        return redirect('home')
+def editCourse(request, pk):
+    course = Course.objects.get(id=pk)
+    form = CourseForm(instance=course)
+    if request.user != course.teacher:
+        return HttpResponse("You are not allowed to delete this course")
+    if request.method == 'POST':
+        course.course_code = request.POST.get('course_code')
+        course.course_name = request.POST.get('course_name')
+        course.course_semeter = request.POST.get('course_semeter')
+        course.course_year = request.POST.get('course_year')
+        course.teacher = request.user
+        course.max_student = request.POST.get('max_student')
+        course.course_status = request.POST.get('course_status')
+        course.describetion = request.POST.get('describetion')
+        # course.student.set(request.POST)
+        course.student.clear()
+        for i in dict(request.POST)['student']:
+            course.student.add(i)
+        course.save()
+        return redirect('home')
+    context = {
+        'course':course,
+        'form':form,
+    }
+    return render(request, 'base/edit_course.html', context)
+def deleteCourse(request, pk):
+    course = Course.objects.get(id=pk)
+    if request.user != course.teacher:
+        return HttpResponse("You are not allowed to delete this course")
+    if request.method == 'POST':
+        course.delete()
+        return redirect('home')
+    context = {
+        'course':course,
+    }
+    return render(request,'base/delete_course.html',context)
+
+    

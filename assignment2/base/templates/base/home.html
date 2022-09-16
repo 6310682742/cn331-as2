@@ -6,6 +6,7 @@
         grid-template-columns: 1fr 3fr;
     }
 </style>
+
 {% if user.is_authenticated %}
 <div class="home-container">
     <div>
@@ -18,9 +19,16 @@
         {% endfor %}
     </div>
     <div>
+        {% if is_admin %}
+        <a href="{% url 'course_form' %}">create course</a>
+        {% endif %}
         <h1>{{q}} course</h1>
 
         {% for course in courses %}
+        {% if user == course.teacher %}
+            <label for=""><a href="{% url 'editCourse' course.id %}">edit</a></label>
+            <label for=""><a href="{% url 'deleteCourse' course.id %}">delete</a></label>
+        {% endif %}
         <h2><a href="{% url 'room' course.id %}">{{course.course_code}} {{course.course_name}}</a></h2>
         <small>{{course.teacher}}</small>
 

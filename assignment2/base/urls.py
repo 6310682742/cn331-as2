@@ -9,5 +9,8 @@ urlpatterns = [
     path('logout/', views.logoutUser, name='logout'),
     path('regist/', views.registUser, name='regist'),
     path('room/<str:pk>', views.room, name='room'),
-    path('userprofile/', views.userProfile, name='userProfile')
+    path('userprofile/', views.userProfile, name='userProfile'),
+    path('course_form/',views.createCourse, name='course_form'),
+    path('deleteCourse/<str:pk>', views.deleteCourse, name='deleteCourse'),
+    path('editCourse/<str:pk>',views.editCourse, name='editCourse')
 ]
