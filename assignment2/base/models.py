@@ -12,7 +12,6 @@ class Course(models.Model):
     teacher = models.ForeignKey(User, on_delete=models.CASCADE)
     student = models.ManyToManyField(User, related_name='student', blank=True)
     max_student = models.IntegerField(default=100)
-    current_student = models.IntegerField(default=0)
     TRUE_FALSE_CHOICES = (
         (True, 'Yes'),
         (False, 'No')
