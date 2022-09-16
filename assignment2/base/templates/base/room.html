@@ -1,22 +1,39 @@
-{% include 'header.html' %}
-{% if user == room.teacher %}
-            <label for=""><a href="{% url 'editCourse' room.id %}">edit</a></label>
-            <label for=""><a href="{% url 'deleteCourse' room.id %}">delete</a></label>
-        {% endif %}
-<h3>{{room.course_code}} -- {{room.course_name}}</h3>
+<style>
+    .home-container{
+        display: grid;
+        grid-template-columns: 1fr 3fr;
+    }
+</style>
+<div class=".home-container">
+    <div>
 
-<p>{{describetion}}</p>
-{% if registable %}
-<form method="POST" action="">
-    {% csrf_token %}
-    
-    <input type="submit" value="{{func}}" name="" id="">
-</form>
-{% else %}
-    {% if is_teacher %}
-    <h4>They are your students </h4>
-    {% for student in students %}
-        <li>{{student}}</li>
-    {% endfor %}
-    {% endif %}
-{% endif %}
+    </div>
+    <div>
+        {% include 'header.html' %}
+        {% if user == room.teacher %}
+                    <label for=""><a href="{% url 'editCourse' room.id %}">edit</a></label>
+                    <label for=""><a href="{% url 'deleteCourse' room.id %}">delete</a></label>
+                {% endif %}
+        <h3>{{room.course_code}} -- {{room.course_name}}</h3>
+
+        <p>{{describetion}}</p>
+        {% if registable %}
+        <form method="POST" action="">
+            {% csrf_token %}
+            
+            <input type="submit" value="{{func}}" name="" id="">
+        </form>
+        {% else %}
+            {% if is_teacher %}
+            <h4>They are your students </h4>
+            {% for student in students %}
+            
+                <li><a href="{% url 'userProfile' student.id %}">{{student}}</a></li>
+            {% endfor %}
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+
+

@@ -116,6 +116,7 @@ def room(request,pk):
             room.save()
             return redirect('home')
     user = request.user
+    print(students)
     context = {
         'room':room,
         'func':func,
@@ -126,15 +127,15 @@ def room(request,pk):
         'user':user
     }
     return render(request, 'base/room.html',context)
-def userProfile(request):
-    if request.user.is_superuser:
-        courses = Course.objects.filter(teacher=request.user)
-    else:
-        courses = Course.objects.filter(student=request.user)
+def userProfile(request,pk):
+    user = User.objects.get(id=pk)
+    courses = user.course_set.all()
     is_student = request.user.is_superuser
     context = {
         'courses':courses,
         'is_student':not is_student,
+        'user':user
+
     }
     return render(request, 'base/userProfile.html', context)
 def createCourse(request):
@@ -182,8 +183,10 @@ def editCourse(request, pk):
         course.describetion = request.POST.get('describetion')
         # course.student.set(request.POST)
         course.student.clear()
-        for i in dict(request.POST)['student']:
-            course.student.add(i)
+        # print(dict(request.POST))
+        if('student' in dict(request.POST).keys()):
+            for i in dict(request.POST)['student']:
+                course.student.add(i)
         course.save()
         return redirect('home')
     context = {
