@@ -1,1 +1,32 @@
 {% include 'header.html' %}
+
+<style>
+    .home-container{
+        display: grid;
+        grid-template-columns: 1fr 3fr;
+    }
+</style>
+{% if user.is_authenticated %}
+<div class="home-container">
+    <div>
+        <h2>Filter</h2>
+        {% for room in roomStatus %}
+        <div>
+            <a href="{% url 'home' %}?q={{room}}">{{room}}</a>
+        </div>
+            
+        {% endfor %}
+    </div>
+    <div>
+        <h1>{{q}} course</h1>
+
+        {% for course in courses %}
+        <h2><a href="{% url 'room' course.id %}">{{course.id}} {{course.course_name}}</a></h2>
+
+        <hr>
+        {% endfor %}
+    </div>
+    
+</div>
+
+{% endif %}
