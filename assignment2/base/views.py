@@ -26,8 +26,13 @@ def home(request):
         courses = Course.objects.filter(course_status=False)
     elif q == "Registered":
         courses = Course.objects.filter(student=request.user)
+    elif q == "Available":
+        courses = []
+        for c in Course.objects.filter(course_status=True):
+            courses.append(c)
     roomStatus = (
         "All",
+        "Available",
         "Open",
         "Closed",
         "Registered",
@@ -93,8 +98,6 @@ def room(request,pk):
             print(room.max_student > len(room.student.all()))
             if room.course_status == True and room.max_student > len(room.student.all()):
                 room.student.add(request.user)
-                if room.max_student <= len(room.student.all()):
-                    room.course_status = False
             else:
                 return HttpResponse("You can not register this couse because this couse reach maximun students or it was closed.")
                 

@@ -20,3 +20,5 @@ class Course(models.Model):
     describetion = models.TextField(blank=True, max_length=500)
     def __str__(self) -> str:
         return self.course_code
+    def is_registable(self) -> bool:
+        return True if self.max_student > self.student.all() else False
