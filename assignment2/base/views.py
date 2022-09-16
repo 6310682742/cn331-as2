@@ -1,4 +1,5 @@
-from http.client import HTTPResponse
+from pydoc import describe
+from django.http import HttpResponse
 from multiprocessing import context
 
 from xml.etree.ElementTree import QName
@@ -79,6 +80,7 @@ def registUser(request):
 @login_required(login_url='login')
 def room(request,pk):
     room = Course.objects.get(id=pk)
+    describetion = room.describetion
     func = ""
     print(room.student.all())
     if(request.user in room.student.all()):
@@ -93,13 +95,17 @@ def room(request,pk):
                 room.student.add(request.user)
                 if room.max_student <= len(room.student.all()):
                     room.course_status = False
+            else:
+                return HttpResponse("You can not register this couse because this couse reach maximun students or it was closed.")
+                
         else:
             room.student.remove(request.user)
         room.save()
         return redirect('home')
     context = {
         'room':room,
-        'func':func
+        'func':func,
+        'describetion':describetion
     }
     return render(request, 'base/room.html',context)
 def userProfile(request):

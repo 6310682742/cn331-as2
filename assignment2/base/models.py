@@ -1,4 +1,5 @@
 from doctest import FAIL_FAST
+from pydoc import describe
 from django.db import models
 from django.contrib.auth.models import User
 # Create your models here.
@@ -17,5 +18,6 @@ class Course(models.Model):
         (False, 'No')
     )
     course_status = models.BooleanField(choices=TRUE_FALSE_CHOICES, default=False)
+    describetion = models.TextField(blank=True, max_length=500)
     def __str__(self) -> str:
         return self.course_code
