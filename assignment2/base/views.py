@@ -127,9 +127,12 @@ def room(request,pk):
 def userProfile(request,pk):
     user = User.objects.get(id=pk)
     if user == request.user:
-        courses = Course.objects.filter(teacher=user)
+        if user.is_superuser:
+            courses = Course.objects.filter(teacher=user)
+        else:
+            courses = Course.objects.filter(student=user)
     else:
-        courses = Course.objects.filter(student=user.id)
+        courses = Course.objects.filter(student=user)
     is_student = request.user.is_superuser
     context = {
         'courses':courses,
