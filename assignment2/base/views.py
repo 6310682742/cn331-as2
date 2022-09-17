@@ -145,23 +145,27 @@ def createCourse(request):
     if(request.user.is_superuser):
         form = CourseForm()
         if request.method == 'POST':
-            course = Course.objects.create(
-            course_code = request.POST.get('course_code'),
-            course_name = request.POST.get('course_name'),
-            course_semeter = request.POST.get('course_semeter'),
-            course_year = request.POST.get('course_year'),
-            teacher = request.user,
-            max_student = request.POST.get('max_student'),
-            course_status = request.POST.get('course_status'),
-            describetion = request.POST.get('describetion')
-            )
-            # course.student.set(request.POST)
-            for i in dict(request.POST)['student']:
-                course.student.add(i)
-            course.save()
+            print(len(dict(request.POST)['student']))
+            if len(dict(request.POST)['student']) <= int(request.POST.get('max_student')):
+                
+                course = Course.objects.create(
+                course_code = request.POST.get('course_code'),
+                course_name = request.POST.get('course_name'),
+                course_semeter = request.POST.get('course_semeter'),
+                course_year = request.POST.get('course_year'),
+                teacher = request.user,
+                max_student = request.POST.get('max_student'),
+                course_status = request.POST.get('course_status'),
+                describetion = request.POST.get('describetion')
+                )
+                # course.student.set(request.POST)
+                for i in dict(request.POST)['student']:
+                    course.student.add(i)
+                course.save()
             
-            return redirect('home')
-
+                return redirect('home')
+            else:
+                return HttpResponse("create course error")
             
         context = {
             'form':form,
@@ -175,7 +179,7 @@ def editCourse(request, pk):
     if request.user != course.teacher:
         return HttpResponse("You are not allowed to edit this course")
     if request.method == 'POST':
-        if 'student' in dict(request.POST).keys() and len(dict(request.POST)['student']) <= int(request.POST.get('max_student')):
+        if 'student' not in dict(request.POST).keys() or (('student' in dict(request.POST).keys() and len(dict(request.POST)['student'])) and len(dict(request.POST)['student']) <= int(request.POST.get('max_student'))):
             course.course_code = request.POST.get('course_code')
             course.course_name = request.POST.get('course_name')
             course.course_semeter = request.POST.get('course_semeter')
@@ -186,8 +190,9 @@ def editCourse(request, pk):
             course.describetion = request.POST.get('describetion')
         # course.student.set(request.POST)
             course.student.clear()
-            for i in dict(request.POST)['student']:
-                course.student.add(i)
+            if 'student' in dict(request.POST).keys():
+                for i in dict(request.POST)['student']:
+                    course.student.add(i)
             course.save()
         else:
             return HttpResponse('Edit Error')
