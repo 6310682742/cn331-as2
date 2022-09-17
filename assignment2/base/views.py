@@ -173,9 +173,9 @@ def editCourse(request, pk):
     course = Course.objects.get(id=pk)
     form = CourseForm(instance=course)
     if request.user != course.teacher:
-        return HttpResponse("You are not allowed to delete this course")
+        return HttpResponse("You are not allowed to edit this course")
     if request.method == 'POST':
-        if len(dict(request.POST)['student']) <= int(request.POST.get('max_student')):
+        if 'student' in dict(request.POST).keys() and len(dict(request.POST)['student']) <= int(request.POST.get('max_student')):
             course.course_code = request.POST.get('course_code')
             course.course_name = request.POST.get('course_name')
             course.course_semeter = request.POST.get('course_semeter')
