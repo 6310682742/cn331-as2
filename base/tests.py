@@ -87,7 +87,7 @@ class CourseTestCase(TestCase):
         self.assertEqual(response.context['q'], 'All')
         self.assertFalse(response.context['is_admin'])
         self.assertTrue(response.context['user'].is_anonymous)
-    def test_home_available(self):
+    def test_home_context_q_available(self):
         c = Client()
         url = '{url}?{filter}={value}'.format(
         url=reverse('home'),
