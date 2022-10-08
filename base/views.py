@@ -68,6 +68,7 @@ def loginUser(request):
             messages.error(request, 'User does not exist')
     context = {}
     return render(request,'base/login.html',context)
+@login_required(login_url='login')
 def logoutUser(request):
     logout(request)
     return redirect('home')
