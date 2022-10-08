@@ -17,7 +17,7 @@ class Course(models.Model):
         (True, 'Yes'),
         (False, 'No')
     )
-    course_status = models.BooleanField(choices=TRUE_FALSE_CHOICES, default=False)
+    course_status = models.BooleanField(choices=TRUE_FALSE_CHOICES, default=True)
     describetion = models.TextField(blank=True, max_length=500)
     def __str__(self) -> str:
         return self.course_code

@@ -47,6 +47,7 @@ def home(request):
         'user':user,
 
     }
+    # print(user)
     return render(request, 'base/home.html', context)
 def loginUser(request):
     
