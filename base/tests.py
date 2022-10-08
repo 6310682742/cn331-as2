@@ -147,7 +147,6 @@ class CourseTestCase(TestCase):
             "Closed",
             "Registered",
         ))
-        # print(User.objects.get(username='user1'))
         self.assertEqual(response.context['q'], 'Available')
         self.assertFalse(response.context['is_admin'])
         self.assertEqual(
@@ -178,7 +177,6 @@ class CourseTestCase(TestCase):
             "Closed",
             "Registered",
         ))
-        print(response.context['user'])
         self.assertEqual(response.context['q'], 'Open')
         self.assertFalse(response.context['is_admin'])
         self.assertEqual(
@@ -200,7 +198,6 @@ class CourseTestCase(TestCase):
             'is_admin',
             'user')
         login = c.login(username='user1', password='password')
-        print(login)
         response = c.get(url)
         self.assertEqual(set(response.context['courses']), set(
             [Course.objects.get(course_code='cn000')]))
@@ -232,7 +229,6 @@ class CourseTestCase(TestCase):
             'is_admin',
             'user')
         login = c.login(username='user1', password='password')
-        print(login)
         response = c.get(url)
         self.assertEqual(set(response.context['courses']), set(
             [Course.objects.get(course_code='cn001')]))
@@ -264,12 +260,15 @@ class CourseTestCase(TestCase):
         self.assertEqual(reponse.context['is_teacher'], False)
         self.assertEqual(reponse.context['user'],
                          User.objects.get(username='user1'))
+    # ทดสอบว่าโปรแกรมสามารถส่งข้อมูลไปหน้า userProfile ได้ถูกต้อง
+
     def test_userProfile(self):
         c = Client()
-        url = reverse('userProfile',args=[Course.objects.get(course_code='cn000').pk])
+        url = reverse('userProfile', args=[
+                      Course.objects.get(course_code='cn000').pk])
         reponse = c.get((url))
-        print(reponse.context['courses'])
-        self.assertQuerysetEqual(reponse.context['courses'], Course.objects.filter(course_code='cn001'))
+        self.assertQuerysetEqual(
+            reponse.context['courses'], Course.objects.filter(course_code='cn001'))
         self.assertTrue(reponse.context['is_student'])
         self.assertEqual(reponse.context['user'],
                          User.objects.get(username='user1'))

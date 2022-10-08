@@ -14,10 +14,11 @@ from django.contrib.auth.decorators import login_required
 from .forms import CourseForm
 # Create your views here.
 
+
 def home(request):
     is_admin = request.user.is_superuser
     q = request.GET.get('q') if request.GET.get('q') != None else 'All'
-    
+
     if q == "All":
         courses = Course.objects.all()
     elif q == "Open":
@@ -29,7 +30,7 @@ def home(request):
     elif q == "Available":
         courses = []
         for c in Course.objects.filter(course_status=True):
-            if(c.is_registable() and request.user not in c.student.all()):
+            if (c.is_registable() and request.user not in c.student.all()):
                 courses.append(c)
     roomStatus = (
         "All",
@@ -37,20 +38,21 @@ def home(request):
         "Open",
         "Closed",
         "Registered",
-        )
+    )
     user = request.user
     context = {
-        'courses':courses,
-        'roomStatus':roomStatus,
-        'q':q,
-        'is_admin':is_admin,
-        'user':user,
+        'courses': courses,
+        'roomStatus': roomStatus,
+        'q': q,
+        'is_admin': is_admin,
+        'user': user,
 
     }
-    # print(user)
     return render(request, 'base/home.html', context)
+
+
 def loginUser(request):
-    
+
     if request.user.is_authenticated:
         return redirect('home')
     if request.method == 'POST':
@@ -60,18 +62,22 @@ def loginUser(request):
             user = User.object.get(username=username)
         except:
             messages.error(request, 'User does not exist')
-        user = authenticate(request, username=username,password=password)
+        user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
             return redirect('home')
         else:
             messages.error(request, 'User does not exist')
     context = {}
-    return render(request,'base/login.html',context)
+    return render(request, 'base/login.html', context)
+
+
 @login_required(login_url='login')
 def logoutUser(request):
     logout(request)
     return redirect('home')
+
+
 def registUser(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -87,46 +93,50 @@ def registUser(request):
             return redirect('home')
         else:
             messages.error(request, 'registration fail')
-    return render(request, 'base/regist.html', {'form':form})
+    return render(request, 'base/regist.html', {'form': form})
+
+
 @login_required(login_url='login')
-def room(request,pk):
+def room(request, pk):
     room = Course.objects.get(id=pk)
     describetion = room.describetion
     func = ""
     students = ""
-    registable = (request.user.is_superuser or request.user == room.teacher) 
+    registable = (request.user.is_superuser or request.user == room.teacher)
     is_teacher = request.user == room.teacher
     if request.user.is_superuser:
         students = room.student.all()
     else:
-        if(request.user in room.student.all()):
+        if (request.user in room.student.all()):
             func = "unregist"
         else:
             func = "regist"
-        
+
         if request.method == 'POST':
             if request.user not in room.student.all():
                 if room.course_status == True and room.max_student > len(room.student.all()):
                     room.student.add(request.user)
                 else:
                     return HttpResponse("You can not register this couse because this couse reach maximun students or it was closed.")
-                    
+
             else:
                 room.student.remove(request.user)
             room.save()
             return redirect('home')
     user = request.user
     context = {
-        'room':room,
-        'func':func,
-        'describetion':describetion,
-        'students':students,
-        'registable':not registable,
-        'is_teacher':is_teacher,
-        'user':user
+        'room': room,
+        'func': func,
+        'describetion': describetion,
+        'students': students,
+        'registable': not registable,
+        'is_teacher': is_teacher,
+        'user': user
     }
-    return render(request, 'base/room.html',context)
-def userProfile(request,pk):
+    return render(request, 'base/room.html', context)
+
+
+def userProfile(request, pk):
     user = User.objects.get(id=pk)
     if user == request.user:
         if user.is_superuser:
@@ -137,44 +147,47 @@ def userProfile(request,pk):
         courses = Course.objects.filter(student=user)
     is_student = request.user.is_superuser
     context = {
-        'courses':courses,
-        'is_student':not is_student,
-        'user':user
+        'courses': courses,
+        'is_student': not is_student,
+        'user': user
 
     }
     return render(request, 'base/userProfile.html', context)
+
+
 def createCourse(request):
-    if(request.user.is_superuser):
+    if (request.user.is_superuser):
         form = CourseForm()
         if request.method == 'POST':
-            print(len(dict(request.POST)['student']))
             if len(dict(request.POST)['student']) <= int(request.POST.get('max_student')):
-                
+
                 course = Course.objects.create(
-                course_code = request.POST.get('course_code'),
-                course_name = request.POST.get('course_name'),
-                course_semeter = request.POST.get('course_semeter'),
-                course_year = request.POST.get('course_year'),
-                teacher = request.user,
-                max_student = request.POST.get('max_student'),
-                course_status = request.POST.get('course_status'),
-                describetion = request.POST.get('describetion')
+                    course_code=request.POST.get('course_code'),
+                    course_name=request.POST.get('course_name'),
+                    course_semeter=request.POST.get('course_semeter'),
+                    course_year=request.POST.get('course_year'),
+                    teacher=request.user,
+                    max_student=request.POST.get('max_student'),
+                    course_status=request.POST.get('course_status'),
+                    describetion=request.POST.get('describetion')
                 )
                 # course.student.set(request.POST)
                 for i in dict(request.POST)['student']:
                     course.student.add(i)
                 course.save()
-            
+
                 return redirect('home')
             else:
                 return HttpResponse("create course error")
-            
+
         context = {
-            'form':form,
+            'form': form,
         }
-        return render(request, 'base/course_form.html',context)
+        return render(request, 'base/course_form.html', context)
     else:
         return redirect('home')
+
+
 def editCourse(request, pk):
     course = Course.objects.get(id=pk)
     form = CourseForm(instance=course)
@@ -200,10 +213,12 @@ def editCourse(request, pk):
             return HttpResponse('Edit Error')
         return redirect('home')
     context = {
-        'course':course,
-        'form':form,
+        'course': course,
+        'form': form,
     }
     return render(request, 'base/edit_course.html', context)
+
+
 def deleteCourse(request, pk):
     course = Course.objects.get(id=pk)
     if request.user != course.teacher:
@@ -212,8 +227,6 @@ def deleteCourse(request, pk):
         course.delete()
         return redirect('home')
     context = {
-        'course':course,
+        'course': course,
     }
-    return render(request,'base/delete_course.html',context)
-
-    
+    return render(request, 'base/delete_course.html', context)
