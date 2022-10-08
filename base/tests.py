@@ -264,3 +264,12 @@ class CourseTestCase(TestCase):
         self.assertEqual(reponse.context['is_teacher'], False)
         self.assertEqual(reponse.context['user'],
                          User.objects.get(username='user1'))
+    def test_userProfile(self):
+        c = Client()
+        url = reverse('userProfile',args=[Course.objects.get(course_code='cn000').pk])
+        reponse = c.get((url))
+        print(reponse.context['courses'])
+        self.assertQuerysetEqual(reponse.context['courses'], Course.objects.filter(course_code='cn001'))
+        self.assertTrue(reponse.context['is_student'])
+        self.assertEqual(reponse.context['user'],
+                         User.objects.get(username='user1'))
