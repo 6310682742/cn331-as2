@@ -6,7 +6,7 @@ from .models import Course
 class CourseForm(ModelForm):
     class Meta:
         model = Course
-        exclude = ['teacher']
+        exclude = ['student']
         fields = '__all__'
         widgets = {
             'student': forms.CheckboxSelectMultiple

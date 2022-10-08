@@ -10,7 +10,7 @@ class Course(models.Model):
 
     course_semeter = models.CharField(max_length=200, default='1')
     course_year = models.IntegerField(default=2000)
-    teacher = models.ForeignKey(User, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     student = models.ManyToManyField(User, related_name='student', blank=True)
     max_student = models.IntegerField(default=100)
     TRUE_FALSE_CHOICES = (
