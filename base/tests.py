@@ -5,11 +5,13 @@ from .models import *
 # Create your tests here.
 class CourseTestCase(TestCase):
     def setUp(self) -> None:
-        course = [Course.objects.create(course_code='cn00'+str(i)) for i in range(1,4)]
+        course = Course.objects.create(course_code='cn001')
         user = User.objects.create(username='user1')
         user.set_password('password')
         user.save();
         return super().setUp()
+    def test_Course(self):
+        course = Course.objects.get(course_code='cn001')
     def test_home(self):
         c = Client()
         response = c.get(reverse('home'))
@@ -33,7 +35,6 @@ class CourseTestCase(TestCase):
     def test_userProfile(self):
         c = Client()
         user = User.objects.first()
-        c.login(username='user1', password='password')
         response = c.get(reverse('userProfile', args=[user.pk]))
         self.assertEqual(response.status_code, 200)
     def test_createCourse(self):
@@ -48,3 +49,26 @@ class CourseTestCase(TestCase):
         c = Client()
         response = c.get(reverse('course_form'))
         self.assertEqual(response.status_code, 302)
+    def test_home_context_q_None(self):
+        c = Client()
+        response = c.get(reverse('home'))
+        CONTEXT_LIST = (
+            'courses',
+            'roomStatus',
+            'q',
+            'is_admin',
+            'user')
+        self.assertEqual(set(response.context['courses']), set(Course.objects.all()))
+    def test_home_context_q_All(self):
+        c = Client()
+        url = '{url}?{filter}={value}'.format(
+        url=reverse('home'),
+        filter='q', value='All')
+        response = c.get(url)
+        CONTEXT_LIST = (
+            'courses',
+            'roomStatus',
+            'q',
+            'is_admin',
+            'user')
+        self.assertEqual(set(response.context['courses']), set(Course.objects.all()))
